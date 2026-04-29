@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html manifest="life.appcache">
+	<head>
+        <meta charset="utf-8">
+        <title>Life</title>
+        <meta name="description" content="A HTML5 implementation of Life.">
+		<link rel="shortcut icon" href="img/favicon.ico">
+		<link rel="apple-touch-icon" href="img/favicon60.png" />
+		<link rel="apple-touch-icon" href="img/favicon76.png" sizes="76x76" />
+		<link rel="apple-touch-icon" href="img/favicon120.png" sizes="120x120" />
+		<link rel="apple-touch-icon" href="img/favicon152.png" sizes="152x152" />
+		<link rel="apple-touch-icon-precomposed" href="http://www.9m2.org/life/img/favicon152.png" sizes="152x152" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="viewport" id="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=0.5, minimum-scale=0.5">	
+		<!--font-->		
+		<!--fonts organized to ensure perfect rendering in chrome, without causing other browsers any difficulties-->
+		<style>
+			@font-face {
+				font-family: "archivo_narrowregular";
+				src:	url("font/archivonarrow-regular-webfont.eot");
+				src:	url("font/archivonarrow-regular-webfont.svg#archivo_narrowregular") format("svg"),
+						url("font/archivonarrow-regular-webfont.woff") format("woff");
+			}
+			
+			@font-face {
+				font-family: "robotothin";
+				src:	url("font/roboto-thin-webfont.eot");
+				src:	url("font/roboto-thin-webfont.svg#robotothin") format("svg"),
+				url("font/roboto-thin-webfont.woff") format("woff");				
+			}
+		</style>
+		<!-- fonts for iDevices (and any device with pixel density >= 2)-->
+		<style>		
+			@media screen and (-webkit-min-device-pixel-ratio:2) {
+				@font-face {
+					font-family: "archivo_narrowregular";
+					src:	url("font/archivonarrow-regular-webfont.ttf") format("truetype");
+				}
+				@font-face {
+					font-family: "robotothin";
+					src:	url("font/roboto-thin-webfont.ttf") format("truetype");
+				}
+			}
+		</style>
+		<!-- css basic -->		
+		<style>	
+			html, body, div, span,  iframe,  img, canvas, footer, header, menu, nav, audio, video {
+				margin:0;
+				padding:0;
+				border:0;
+				outline:0;
+				font-size:100%;
+				vertical-align:baseline;
+				background:transparent;
+			}			
+			
+			article, aside, footer, header, menu, nav, section, img {
+				display:block;
+			}
+			
+			html {
+				height:100%;				
+				-webkit-user-select: none;
+				-ms-user-select: none;
+				-moz-user-select: none;					
+				min-height:300px;
+				background:#000;
+			}
+			
+			body {
+				line-height:1;
+				height:100%;				
+				overflow:hidden;
+			}
+			
+			a {
+				text-decoration:none;
+				color:#FFF;
+			}			
+			
+			img {width:100%;}
+			
+			.a {				
+				position:absolute;
+			}
+			
+			.r {				
+				position:relative;
+			}
+						
+			.hidden {
+				display:none;
+			}
+		</style>
+		<!--	transitions	-->
+		<style>			
+			.mAlpha {	
+				-webkit-transition:	opacity 500ms linear; 
+				-moz-transition:	opacity 500ms linear; 
+				-ms-transition: 		opacity 500ms linear; 
+				-o-transition: 		opacity 500ms linear; 
+				transition: 			opacity 500ms linear;
+			}
+			
+			.mAlpha2 {	
+				-webkit-transition:	opacity 1000ms linear; 
+				-moz-transition:	opacity 1000ms linear; 
+				-ms-transition: 		opacity 1000ms linear; 
+				-o-transition: 		opacity 1000ms linear; 
+				transition: 			opacity 1000ms linear;
+			}
+			
+			.mWidth{
+				-webkit-transition:	width 100ms ease-in-out; 
+				-moz-transition:	width 100ms ease-in-out; 
+				-ms-transition: 		width 100ms ease-in-out; 
+				-o-transition: 		width 100ms ease-in-out; 
+				transition: 			width 100ms ease-in-out;
+			}
+			
+			.mLeft {	
+				-webkit-transition:	left 500ms linear; 
+				-moz-transition:	left 500ms linear; 
+				-ms-transition: 		left 500ms linear; 
+				-o-transition: 		left 500ms linear; 
+				transition: 			left 500ms linear;
+			}
+			
+			.mTop {	
+				-webkit-transition:	top 500ms linear; 
+				-moz-transition:	top 500ms linear; 
+				-ms-transition: 		top 500ms linear; 
+				-o-transition: 		top 500ms linear; 
+				transition: 			top 500ms linear;
+			}
+		</style>
+		<!--	project	-->
+		<style>			
+			#container{
+				position:absolute;
+				width:100%;
+				height:100%;
+				overflow:hidden;
+				font-family: "archivo_narrowregular";
+			}
+			
+			#canvasBackdrop {
+				width:100%;
+				height:100%;
+				background:#DDD;
+			}
+			#displayCanvas {
+				cursor:pointer;
+			}
+			.sheet {
+				position:absolute;
+				width:100%;
+				height:100%;
+				top:0px;
+				overflow:hidden;
+			}
+			
+			.imageFrame {
+				position:absolute;
+				width:100%;
+				height:100%;
+			}
+		</style>
+		<!--	front page	-->
+		<style>
+			#frontPage{
+				position:absolute;
+				width:100%;
+				height:100%;
+				background:#444;
+				font-size:58%;
+				text-align:center;
+				min-height:300px;
+				cursor:pointer;
+			}
+			#fPContainer {
+				position:absolute;
+				color:#FFF;
+			}
+			.fPLayer {
+				width:100%;
+				height:100%;
+				position:absolute;
+				top:0px;
+			}
+			#johnConways {
+				font-family: "robotothin";
+				font-size:25%;
+				color:#000;
+			}
+			#clickMessage {
+				font-family: "robotothin";
+				font-size:10%;
+				color:#222;
+				line-height:2600%;
+			}
+		</style>
+		<!--	load		-->
+		<style>
+			#loadShield {
+				position:absolute;
+				top:0px;
+				background:#000;
+				height:100%;
+				width:100%;
+				z-index:1000;
+				opacity:0.999;
+			}			
+			.loadBar {
+				position:absolute;
+				height:49%;	
+				width:0px;
+			}			
+			#preloadProgressBar {
+				border-bottom:#FFF 3px solid;
+				opacity:0.8;
+			}
+		</style>		
+		<!--	controls	-->
+		<style>	
+			.controlPanel {
+				width:0px;
+				height:100%;
+				position:relative;				
+				font-size:18px;
+				min-height:300px;	
+			}			
+			#cP1 {
+				float:left;
+			}			
+			#cP2 {
+				float:right;
+			}			
+			.vSpacer {
+				position:relative;
+				height:10%;
+				width:0%;				
+			}			
+			.vSpacerA {
+				position:relative;
+				height:10%;
+				width:90px;
+				line-height:30px;
+			}	
+			.vSpacerA2 {
+				position:relative;
+				height:5%;
+				width:90px;
+				line-height:30px;
+			}			
+			.vSpacerB {
+				position:relative;
+				height:10%;
+				width:90px;
+				left:-90px;							
+				line-height:38px;
+			}			
+			.cPItem {				
+				width:100%;
+				height:100%;
+				color:#222;
+				text-align:center;
+				cursor:pointer;
+				opacity:0.9;
+				background:rgb(255,0,102);
+				background:rgba(255,0,102,0);
+			}			
+			.cPItemR{
+				position:absolute;
+				width:100%;
+				height:100%;
+				color:#222;
+				text-align:center;
+				cursor:pointer;
+				opacity:0.9;
+				bottom:0px;
+				background:rgb(255,0,102);
+				background:rgba(255,0,102,0);
+			}
+			
+			#cPSizeChoser {
+				width:300%;
+				left:100%;
+				height:90%;
+				position:relative;				
+			}
+			
+			.cPSize {
+				width:33.3%;
+				height:90%;
+				text-align:center;
+				float:left;
+				cursor:pointer;
+				line-height:38px;
+				position:relative;
+				background:rgb(0, 153, 255);
+				background:rgba(0, 153, 255, 0);
+			}
+			
+			.button {
+				width:100%;
+				height:100%;
+				cursor:pointer;
+			}
+			
+			.iButton {
+				height:90%;
+			}
+			
+			#formsPanel {
+				position:absolute;
+				top:0px;
+				left:-180px;
+				width:180px;
+				height:100%;
+				opacity:0.8;
+				line-height:50%;
+			}
+			
+			.fSpacer {
+				position:relative;
+				width:100%;
+				height:10%;		
+				color:#000;					
+				text-align:center;	
+			}
+						
+			#formMask {
+				background:#0099FF;
+				opacity:0.5;				
+			}
+			
+			.fText {
+				position:relative;
+				width:100%;
+				height:90%;
+				line-height:250%;
+				letter-spacing:0.07em;
+				cursor:pointer;
+				background:rgb(0, 153, 255);
+				background:rgba(0, 153, 255, 0);
+			}
+			
+			#reload {
+				position:absolute;
+				width:100px;
+				height:100px;
+				background:yellow;
+				cursor:pointer;
+			}
+			</style>
+		<!--	animation	-->
+			<style>
+			.aFrame { 
+				position:absolute;
+				font-size:200%;
+				text-align:center;
+				opacity:0.5;
+				
+				-webkit-animation-name: aFrameAni;
+				-webkit-animation-duration: 2s;
+				-bwebkit-animation-timing-function: ease-in-out;				
+				-webkit-animation-iteration-count: infinite;
+				-webkit-animation-play-state: running;
+								
+				animation-name: aFrameAni;
+				animation-duration: 2s;
+				banimation-timing-function:ease-in-out;
+				animation-iteration-count: infinite;
+				animation-play-state: running;
+			}
+			
+			#aFrame0 {
+				opacity:0.5;
+			}
+			#aFrame1 {
+				opacity:0;
+				-webkit-animation-delay: 1s;
+				animation-delay: 1s;
+			}
+			#aFrame2 {
+				opacity:0;
+				-webkit-animation-delay: 2s;
+				animation-delay: 2s;
+			}
+			#aFrame3 {
+				opacity:0;
+				-webkit-animation-delay: 3s;
+				animation-delay: 3s;
+			}			
+			
+			@-webkit-keyframes aFrameAni {
+				0%  	 {opacity:0.7;}
+				25% 	 {opacity:0.5;}
+				50% 	 {opacity:0.2;}
+				100% 	 {opacity:0.0;}
+			}
+		</style>
+	</head>
+    <body id="body">
+		<div class="hidden">			
+			<div id="pX" data-resize="0" data-ratio="1" data-xO="0.5" data-yO="0.5" data-fontSize="1" data-lineHeight="1"></div>
+			<div class="negative" id="iBG" data-class="preloadImage" data-bgImage="canvasBackdrop" data-src="img/bg.png"></div>				
+			<div class="negative" data-class="preloadImage" data-bgImage="frontPage" data-src="img/bg.png"></div>	
+			<div class="negative" data-class="preloadImage" data-bgImage="container" data-src="img/bg.png"></div>
+			<div class="negative" id="iCell" data-class="preloadImage" data-src="img/cell.png"></div>				
+			<div class="negative" id="iButtonL" data-class="preloadImage button" data-src="img/buttonL.png"></div>			
+			<div class="negative" id="iButtonR" data-class="preloadImage button" data-src="img/buttonR.png"></div>			
+			<div class="negative" id="iFButton" data-class="preloadImage button" data-src="img/fButton.png"></div>		
+			<div class="negative" id="iSButton" data-class="preloadImage button" data-src="img/sButton.png"></div>
+			<div class="negative" id="iAF0" data-class="preloadImage" data-src="img/aFrame0.png"></div>		
+			<div class="negative" id="iAF1" data-class="preloadImage" data-src="img/aFrame1.png"></div>
+		</div>
+		
+		<div id="container">				
+			<div class="sheet" id="life">
+				
+				<div class="a mAlpha" id="canvasBackdrop"></div>
+				<canvas class="a mouseSensitive mAlpha" id="displayCanvas"></canvas>
+				
+				<div class="controlPanel" id="cP1">				
+					<div class="vSpacer"></div>
+					<div class="vSpacerA"><div class="imageFrame iButton" data-negative="iButtonL"></div><div class="cPItem" id="cPForms">FORMS</div></div>
+					<div class="vSpacer"></div>
+					<div class="vSpacerA"><div class="imageFrame iButton" data-negative="iButtonL"></div><div class="cPItem" id="cPClear">CLEAR</div></div>
+					<div class="vSpacerA"><div class="imageFrame iButton" data-negative="iButtonL"></div><div class="cPItem" id="cPCopy">COPY</div></div>
+					<div class="vSpacerA"><div class="imageFrame iButton" data-negative="iButtonL"></div><div class="cPItem" id="cPPaste">PASTE</div></div>
+					<div class="vSpacerA"><div class="imageFrame iButton" data-negative="iButtonL"></div><div class="cPItem" id="cPRandom">RANDOM</div></div>
+					<div class="vSpacer"></div>                             
+					<div class="vSpacerA"><div class="imageFrame iButton" data-negative="iButtonL"></div><div class="cPItem" id="cPPlay">PLAY</div></div>				
+				</div>
+				
+				<div class="controlPanel" id="cP2">
+					<div class="vSpacer"></div>
+					<div class="vSpacer"></div>
+					<div class="vSpacer"></div>
+					<div class="vSpacerB">
+						<div class="imageFrame iButton" data-negative="iButtonR"></div>
+						<span class="cPItemR" id="cPSize">CELL SIZE</span>
+						<div class="mLeft" id="cPSizeChoser">
+							<div class="imageFrame iSButton" data-negative="iSButton"></div>
+							<div class="cPSize" id="cPSize1">S</div>
+							<div class="cPSize" id="cPSize2">M</div>
+							<div class="cPSize" id="cPSize3">L</div>
+						</div>
+					</div>
+					<div class="vSpacer"></div>
+					<div class="vSpacer"></div>
+					<div class="vSpacerB"><div class="imageFrame iButton" data-negative="iButtonR"></div><span class="cPItemR" id="cPBack">BACK</span></div>			
+				</div>
+				
+				<div class="controlPanel mLeft" id="formsPanel">
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f00">&nbsp;&nbsp;Gosper's Glider Gun&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f01">&nbsp;&nbsp;Infinite 1d&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f02">&nbsp;&nbsp;Infinite 10 Cell&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f03">&nbsp;&nbsp;Infinite 5 x 5 Cell&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f04">&nbsp;&nbsp;F Pentomino&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f05">&nbsp;&nbsp;Acorn&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f06">&nbsp;&nbsp;Diehard&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f07">&nbsp;&nbsp;Blinker Puffer 1 '84&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f08">&nbsp;&nbsp;Noah's Ark&nbsp;&nbsp;</div></div>
+					<div class="fSpacer"><div class="imageFrame iButton" data-negative="iFButton"></div><div class="fText" id="f09">&nbsp;&nbsp;B29 spaceship&nbsp;&nbsp;</div></div>
+				</div>
+				<div class="formMask a" id="formMask"></div>
+				
+				
+			</div>
+			
+			<div class="mAlpha3" id="frontPage">
+				<div class="imageFrame bg aFrame mAlpha2" id="aFrame0" data-negative="iAF0"></div>
+				<div class="imageFrame bg aFrame mAlpha2" id="aFrame1" data-negative="iAF1"></div>
+				<div class="bg" id="fPContainer">LIFE				
+					<div class="fPLayer" id="johnConways">john conway's</div>
+					<div class="fPLayer" id="clickMessage">click or touch anywhere to enter</div>					
+				</div>
+			</div>
+			
+			<div class="mAlpha2" id="loadShield">
+				<div class="mWidth loadBar" id="preloadProgressBar"></div>	
+			</div>
+			
+		</div>
+		<script>
+			(function() {
+				var lastTime = 0,
+					vendors = ['ms', 'moz', 'webkit', 'o'],
+					x,
+					length,
+					currTime,
+					timeToCall;
+
+				for(x = 0, length = vendors.length; x < length && !window.requestAnimationFrame; ++x) {
+					window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+					window.cancelAnimationFrame = 
+					  window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+				}
+
+				if (!window.requestAnimationFrame)
+					window.requestAnimationFrame = function(callback, element) {
+						currTime = new Date().getTime();
+						timeToCall = Math.max(0, 16 - (currTime - lastTime));
+						lastTime = currTime + timeToCall;
+						return window.setTimeout(function() { callback(currTime + timeToCall); }, 
+						  timeToCall);
+					};
+
+				if (!window.cancelAnimationFrame)
+					window.cancelAnimationFrame = function(id) {
+						clearTimeout(id);
+					};
+			}());
+		</script>
+		<script>
+		var grid = {
+			stepSize : 20,
+			gridWidth : 0,
+			gridHeight : 0,
+			formPanelWidth : 0,
+			xCellCount : 0,
+			yCellCount : 0,
+			xCellCountAdd1 : 0,
+			yCellCountAdd1 : 0,
+			lcd  : null,
+			lcdContext : null,
+			aScratch : [],
+			aScratchCopy : [],
+			aScreen : [],
+			aForm : [],
+			formIndex : null,
+			formDrag : false,
+			pulse : null,
+			img : null,
+			x : null,
+			y : null,
+			
+			createCanvas : function () {	
+				"use strict";
+				this.lcd = document.getElementById("displayCanvas");					
+				this.lcdContext  = this.lcd.getContext("2d");				
+			},
+			
+			initialiseArray : function () {
+				"use strict";
+				var y, x = null;
+				for(y = 0; y < this.yCellCount + 2; y += 1) {
+					this.aScratch[y] = [];
+					this.aScreen[y] = [];
+					for(x = 0; x <  this.xCellCount + 2; x += 1) {
+						this.aScratch[y][x] = 0;		
+						this.aScreen[y][x] = 0;		
+					}
+				}
+			},
+			
+			randomizeArray : function () {	
+				"use strict";					
+				var y, x = null;
+				for(y = 1; y < this.yCellCount + 1; y += 1) {
+					for(x = 1; x < this.xCellCount + 1; x += 1) {	
+						this.aScratch[y][x] = Math.round(Math.random());		
+					}
+				}
+				this.printImage();
+			},
+			
+			clearScreen : function () {
+				"use strict";
+				this.lcd.width = this.lcd.width;		
+				this.initialiseArray();
+			},
+			
+			scratchCopy : function () {
+				"use strict";
+				var iY, iX = null;
+				this.aScratchCopy = [];
+				for (iY = 1; iY < this.yCellCount + 1; iY += 1) {
+					for (iX = 1; iX < this.xCellCount + 1; iX += 1) {
+						if (this.aScratch[iY][iX]) {
+							this.aScratchCopy.push(iY);
+							this.aScratchCopy.push(iX);
+						}		
+					}	
+				}
+			},
+			
+			scratchPaste : function ()	{	
+				"use strict";
+				var l = null;
+				for (l = 0; l < this.aScratchCopy.length; l += 2) {		
+					this.aScratch[this.aScratchCopy[l]][ this.aScratchCopy[l + 1]] = 1;
+				}			
+				this.printImage();					
+			},
+			
+			formDragOn : function(x, y) {
+				"use strict";
+				var formMask  = document.getElementById("formMask");
+				formMask.style.left = x + "px"; 
+				formMask.style.top = y + "px"; 
+			},
+			
+			libraryFormPaste : function(x, y, formIndex) {
+				"use strict";
+				var xOffset, yOffset, fP;
+				yOffset = Math.floor(y / this.stepSize);
+				xOffset = Math.floor(x / this.stepSize) ;
+				for (fP = 2; fP < this.aForm[formIndex].length; fP += 2) {
+					if(((this.aForm[formIndex][fP] + yOffset) <  (this.yCellCount)) && ((this.aForm[formIndex][fP] + yOffset) <  (this.xCellCount)))	 {
+						this.aScratch[this.aForm[formIndex][fP] + yOffset][this.aForm[formIndex][fP + 1] + xOffset] = 1;
+					}
+				}
+				this.printImage();
+			},
+			
+			setupLibrary : function () {
+				"use strict";
+				var fC;
+				this.aForm = [];
+				this.formCount = 10;
+				for (fC = 0; fC < this.formCount; fC++) {
+					this.aForm[fC] = [];
+				}
+				this.aForm[0] = [9,36, 0,24, 1,22,1,24, 2,12,2,13,2,20,2,21,2,34,2,35, 3,11,3,15,3,20,3,21,3,34,3,35,4,0,4,1,4,10,4,16,4,20,4,21, 5,0,5,1,5,10,5,14,5,16,5,17,5,22,5,24, 6,10,6,16,6,24, 7,11, 7,15, 8,12,8,13];//gosper
+				this.aForm[1] = [1,39, 0,0,0,1,0,2,0,3,0,4,0,5,0,6,0,7, 0,9,0,10,0,11,0,12,0,13, 0,17,0,18,0,19, 0,26,0,27,0,28,0,29,0,30,0,31,0,32, 0,34,0,35,0,36,0,37,0,38 ];// inf 1d 
+				this.aForm[2] = [6,8, 0,6,1,4,1,6,1,7,2,4,2,6,3,4,4,2,5,0,5,2]; //inf 10 cell
+				this.aForm[3] = [5,5, 0,0,0,1,0,2,0,4,1,0,2,3,2,4,3,1,3,2,3,4,4,0,4,2,4,2,4,4]; //inf 5 x 5
+				this.aForm[4] = [3,3, 0,1,0,2, 1,0,1,1, 2,1]; // f pentomino
+				this.aForm[5] = [3,7, 0,1, 1,3, 2,0,2,1,2,4,2,5,2,6]; // acorn
+				this.aForm[6] = [3,8, 0,6, 1,0,1,1, 2,1,2,5,2,6,2,7]; // diehard
+				this.aForm[7] = [18,9, 0,3, 1,1,1,5, 2,0, 3,0,3,5, 4,0,4,1,4,2,4,3,4,4, 8,1,8,2,9,0,9,1,9,3,9,4,9,5, 10,1,10,2,10,3,10,4,11,2,11,3, 13,5,13,6, 14,3,14,8, 15,2, 16,2,16,8, 17,2,17,3,17,4,17,5,17,6,17,7];//blinker puffer 1 1984
+				this.aForm[8] = [15,15, 0,11,0,13, 1,10, 2,11,2,14, 3,13,3,14,3,15, 10,1, 11,0,11,2, 13,0,13,3, 14,2,14,3, 15, 3];//noahs ark
+				this.aForm[9] = [7,17, 0,7,0,8,0,9, 1,7, 2,0,2,1,2,2,2,9, 3,0,3,7,3,9, 4,1,4,6,4,7,4,9,4,10,4,11,4,12, 5,3,5,4,5,5,5,6,5,8,5,9,5,10,5,11,5,12,5,14,5,15, 6,4,6,5,6,13,6,14,6,16];//B29 spaceship					
+			},		
+			
+			printImage : function () {
+				"use strict";					
+				var x, y, pY, printX, printY, s, s3;
+				this.lcd.width = this.lcd.width;				
+				x = this.xCellCount - 1;
+				y = this.yCellCount - 1;
+				s = this.stepSize;
+				s3 = s * 3;
+				for(printY = 1; printY < y; printY += 1) {					
+					pY = (printY - 1) * s;
+					for(printX = 1; printX < x; printX += 1) {
+						if (this.aScreen[printY][printX] = this.aScratch[printY][printX]) {				
+							this.lcdContext.drawImage(this.img, (printX - 1) * s, pY, s3, s3);
+						}							
+					}
+				}					
+			},
+			
+			add : function () {
+				"use strict";
+				var iY, iX, xMinus, xPlus, yMinus, yPlus, total, totalCheck1, totalCheck2, totalCheck3;				
+				for(iY = 1; iY < this.yCellCountAdd1; iY += 1) {
+					yMinus = iY - 1;
+					yPlus = iY + 1;
+					for(iX = 1; iX < this.xCellCountAdd1; iX += 1) {
+						xMinus = iX - 1;
+						xPlus = iX + 1;
+						
+						total = this.aScreen [yMinus][xMinus];
+						total += this.aScreen [yMinus][iX];
+						total += this.aScreen [yMinus][xPlus];
+						total += this.aScreen [iY][xMinus];
+						total += this.aScreen [iY][xPlus];
+						total += this.aScreen [yPlus][xMinus];
+						total += this.aScreen [yPlus][iX];
+						total += this.aScreen [yPlus][xPlus];
+						
+						totalCheck1 = (total === 2);
+						totalCheck2 = (total === 3);
+						totalCheck3 = (totalCheck1 || totalCheck2);
+						
+						if (this.aScreen[iY][iX]) {
+							this.aScratch[iY][iX] = totalCheck3;
+						} else {
+							this.aScratch[iY][iX] = totalCheck2;
+						}	
+					}
+				}
+			},
+			
+			mouseAndTouchHandler : function (event) {
+				"use strict";
+				event.preventDefault();	
+			
+				var eTarget, previousX, previousY, targetClass, touch, e, formMask, c;
+				formMask = document.getElementById("formMask");
+				eTarget = event.target;
+				previousX = grid.x;
+				previousY = grid.y;	
+				
+				if (event.touches) { e = event.changedTouches[0]; } 
+				else { e = event; }
+				
+				grid.x = Math.floor(e.pageX / grid.stepSize); 
+				grid.y = Math.floor(e.pageY / grid.stepSize);
+				
+				switch(event.type) {						
+					case"mouseout": case"touchleave":
+						if (eTarget.id === "displayCanvas") {							
+							grid.dragging = false;
+						}
+						break;						
+					case "touchstart": case"mousedown":
+						document.getElementById("formsPanel").style.left = "-180px";
+						document.getElementById("cPSizeChoser").style.left = "100%";
+						switch(eTarget.id) {
+							case "displayCanvas":
+								grid.dragging = true;	
+								grid.aScratch[grid.y][grid.x] = !grid.aScreen[grid.y][grid.x];
+								break;							
+							case "cPForms":									
+								document.getElementById("formsPanel").style.left = "0px";
+								break;
+							case "cPClear":
+								grid.clearScreen();
+								break;
+							case "cPCopy":
+								grid.scratchCopy();
+								break;
+							case "cPPaste":
+								grid.scratchPaste();
+								break;
+							case "cPRandom":
+								grid.randomizeArray();
+								break;
+							case "cPPlay":
+								engine.stopStart();
+								break;
+							case "cPSize":
+								document.getElementById("cPSizeChoser").style.left = "-200%";
+								break;
+							case "cPSize1":
+								grid.stepSize = 5;								
+								page.resizeHandler();
+								document.getElementById("cPSizeChoser").style.left = "100%";
+								break;
+							case "cPSize2":
+								grid.stepSize = 10;
+								page.resizeHandler();
+								document.getElementById("cPSizeChoser").style.left = "100%";
+								break;
+							case "cPSize3":
+								grid.stepSize = 20;
+								page.resizeHandler();
+								document.getElementById("cPSizeChoser").style.left = "100%";
+								break;
+							case "cPBack":									
+								engine.runStop = 1;
+								engine.stopStart();	
+								page.removeEventListeners();
+								for (c = 0; c < document.getElementsByClassName("cPItem").length; c += 1) {
+									document.getElementsByClassName("cPItem")[c].style.cursor = "default";									
+								}
+								document.getElementById("cP1").style.opacity = 0;
+								document.getElementById("cP2").style.opacity = 0;
+								document.getElementById("displayCanvas").style.opacity = 0;
+								document.getElementById("canvasBackdrop").style.opacity = 0;	
+								
+								setTimeout(function () {			
+									document.getElementById("displayCanvas").style.display = "none";	
+									document.getElementById("canvasBackdrop").style.display = "none";	
+									document.getElementById("cP1").style.display = "none";	
+									document.getElementById("cP2").style.display = "none";	
+									document.getElementById("formsPanel").style.display = "none";	
+								}, 500);		
+								location.reload();
+								break;
+						}												
+						if (eTarget.className === "fText"){							
+							grid.formIndex = parseInt(eTarget.id.substring(1, 3), 10);
+							grid.formDrag = true;							
+							formMask.style.display = "block";									
+							formMask.style.width = grid.aForm[grid.formIndex][1] * grid.stepSize +  "px";	
+							formMask.style.height = grid.aForm[grid.formIndex][0] * grid.stepSize +  "px";
+							document.getElementById("formsPanel").style.left = "-180px";
+							grid.formDragOn(grid.x * grid.stepSize, grid.y * grid.stepSize);
+						}						
+						break;				
+					case "touchend": case "mouseup":	
+						grid.dragging = false;						
+						if (grid.formDrag === true) {									
+							grid.libraryFormPaste(grid.x * grid.stepSize, grid.y * grid.stepSize, grid.formIndex);
+						}
+						grid.formDrag = false;
+						formMask.style.display = "none";					
+						break;
+					case"touchmove": case "mousemove":
+						if ((eTarget.id === "displayCanvas") || (eTarget.id === "formMask") || (eTarget.className === "fSpacer") || (eTarget.className === "fText")) {
+							if (grid.dragging){
+								grid.aScratch[grid.y][grid.x] = !grid.aScreen[grid.y][grid.x];
+							}								
+							if (grid.formDrag) {	
+								grid.formDragOn(grid.x * grid.stepSize, grid.y * grid.stepSize);
+							}							
+						} 	
+					break;							
+				}
+			},
+			
+			keyboardHandler : function (event) {
+				"use strict";	
+				switch (event.keyCode) 	{
+					case 32:					engine.stopStart();		break;		//space				
+					case 88: case 120:	grid.clearScreen();		break;		//x			
+					case 67: case 99:		grid.scratchCopy();		break;		//c			
+					case 86: case 118:	grid.scratchPaste();		break;		//v			
+					case 82: case 114:	grid.randomizeArray();	break;		//r								
+				}
+			}
+		};
+		</script>
+		<script>
+			var engine = {
+				pulse : null,
+				runStop : 1,
+				
+				loop : function () {
+					"use strict";
+					grid.printImage();
+					grid.add();
+					engine.pulse = requestAnimationFrame(engine.loop);
+				},
+
+				idleLoop: function () {
+					"use strict";
+					grid.printImage();	
+					engine.pulse = requestAnimationFrame(engine.idleLoop);
+				},
+				
+				stopStart : function () {	
+					"use strict";
+					engine.runStop *= -1;							
+					if (engine.runStop > 0) {
+						cancelAnimationFrame(engine.pulse);	
+						engine.pulse = requestAnimationFrame(engine.loop);
+						//document.getElementById("cPPlay").style.background = "#FF0066";
+						document.getElementById("cPPlay").innerHTML = "PAUSE";							
+					} else {
+						cancelAnimationFrame(engine.pulse);				
+						engine.pulse = requestAnimationFrame(engine.idleLoop);	
+						//document.getElementById("cPPlay").style.background = "#33CC33";
+						document.getElementById("cPPlay").innerHTML = "PLAY";
+					}
+				}
+			};
+		</script>
+		<script>
+		var page = {			
+			i : [],
+			cWidth : 0,
+			cHeight : 0,
+			dPR : window.devicePixelRatio || 1,
+			sliderOpen : -1,
+			//visitedOnce : -1,
+			
+			removeEventListeners : function () {				
+				"use strict";
+				page.removeEventHandler(window, "keydown", grid.keyboardHandler);
+				page.removeEventHandler(document.getElementById("life"), "mousedown", grid.mouseAndTouchHandler);
+				page.removeEventHandler(document.getElementById("life"), "mouseup", grid.mouseAndTouchHandler);
+				page.removeEventHandler(document.getElementById("life"), "mousemove", grid.mouseAndTouchHandler);
+				page.removeEventHandler(document.getElementById("life"), "mouseout", grid.mouseAndTouchHandler);						
+				page.removeEventHandler(document.getElementById("life"), "touchstart", grid.mouseAndTouchHandler);	
+				page.removeEventHandler(document.getElementById("life"), "touchend", grid.mouseAndTouchHandler);	
+				page.removeEventHandler(document.getElementById("life"), "touchmove", grid.mouseAndTouchHandler);
+			},
+			
+			addEventListeners : function () {				
+				"use strict";
+				page.addEventHandler(window, "keydown", grid.keyboardHandler);
+				page.addEventHandler(document.getElementById("life"), "mousedown", grid.mouseAndTouchHandler);
+				page.addEventHandler(document.getElementById("life"), "mouseup", grid.mouseAndTouchHandler);
+				page.addEventHandler(document.getElementById("life"), "mousemove", grid.mouseAndTouchHandler);
+				page.addEventHandler(document.getElementById("life"), "mouseout", grid.mouseAndTouchHandler);				
+				page.addEventHandler(document.getElementById("life"), "touchstart", grid.mouseAndTouchHandler);	
+				page.addEventHandler(document.getElementById("life"), "touchend", grid.mouseAndTouchHandler);	
+				page.addEventHandler(document.getElementById("life"), "touchmove", grid.mouseAndTouchHandler);			
+			},
+			
+			fadeIn : function () {
+				document.getElementById("frontPage").style.opacity = 0;
+				setTimeout( function () {	document.getElementById("frontPage").style.zIndex = -10; }, 1000);
+				engine.stopStart();
+				page.addEventListeners();
+			},
+			
+			sliderClose : function (event) {				
+				event.target.parentNode.parentNode.parentNode.style.left = event.target.parentNode.parentNode.getAttribute("data-home");
+			}, 
+			
+			frontPageMouseAndTouchHandler : function(event) {
+				"use strict";							
+				var eTarget, e;
+				event.preventDefault();		
+				eTarget = event.target || event.srcElement;
+				if ((page.sliderOpen) && (eTarget.className === "preloadImage xButton")) {
+					page.sliderClose(event);
+					page.sliderOpen = -1;
+				} else {
+					if (eTarget.className === "fTab iOTab") {			
+						page.sliderOpen = 1;
+						document.getElementById(eTarget.id + "Slider").style.left = "0%";					
+					} else if (page.sliderOpen != 1) {
+						page.removeEventHandler(document.getElementById("frontPage"), "mousedown", page.frontPageMouseAndTouchHandler);
+						page.removeEventHandler(document.getElementById("frontPage"), "touchstart", page.frontPageMouseAndTouchHandler);
+						grid.randomizeArray();
+						page.fadeIn();
+					}
+				}
+			},
+			
+			readyToRock : function () {
+				"use strict";	
+				grid.setupLibrary();				
+				page.addEventHandler(document.getElementById("frontPage"), "mousedown", page.frontPageMouseAndTouchHandler);
+				page.addEventHandler(document.getElementById("frontPage"), "touchstart", page.frontPageMouseAndTouchHandler);	
+			},
+			
+			setSize : function (e) {
+				"use strict";
+				var iO, cW, cH, eW, eH, eRatio, cRatio;
+				cW = page.cWidth;
+				cH = page.cHeight;	
+				
+				if (e.getAttribute("data-cHeight")) {
+					if (e.getAttribute("data-cHeight") === "auto") {
+						cH = Math.min(cH, cW);
+					} else {
+						cH *= parseFloat(e.getAttribute("data-cHeight"));
+					}
+				} 
+				if (e.getAttribute("data-cWidth")) {
+					if (e.getAttribute("data-cWidth") === "auto") {
+						cW = Math.min(cH, cW);
+					} else {
+						cW *= parseFloat(e.getAttribute("data-cWidth"));
+					}
+				}
+				
+				cRatio = cW / cH;
+				eRatio = parseFloat(e.getAttribute("data-ratio"));						
+				iO = parseInt(e.getAttribute("data-resize"), 10);
+				
+				switch(iO) {
+					case 0:
+						if (cRatio <= eRatio) {							
+							eW = cW;
+							eH = cW / eRatio;
+						} else {						
+							eW = cH * eRatio;
+							eH = cH;							
+						}
+						break;							
+					case 1:		
+						if (cRatio <= eRatio) {				
+							eW = cH * eRatio;
+							eH = cH;
+						} else {							
+							eW = cW;
+							eH = cW / eRatio;							
+						}	
+						break;
+				}					 
+				
+				e.style.width = eW + "px";	
+				e.style.height = eH + "px";
+				
+				if (e.getAttribute("data-xO")) {						
+					e.style.left = (page.cWidth - eW) * parseFloat(e.getAttribute("data-xO"))  + "px";						
+				}
+				if (e.getAttribute("data-yO")) {
+					e.style.top = Math.floor((page.cHeight - eH) * parseFloat(e.getAttribute("data-yO"))) + "px";
+				}	
+				if (e.getAttribute("data-fontSize")) {
+					e.style.fontSize = eH * parseFloat(e.getAttribute("data-fontSize")) + "px";
+				}
+				if (e.getAttribute("data-lineHeight")) {
+					e.style.lineHeight = eH * parseFloat(e.getAttribute("data-lineHeight")) + "px";
+				}					
+			},
+			
+			sizeHandler : function () {
+				"use strict";
+				var n, bgs = document.querySelectorAll(".bg"), fps = document.querySelectorAll(".fp"), pX, pW, pH, pL, pT;
+				if (document.getElementById("pX")) {
+					pX = document.getElementById("pX");
+					page.setSize(pX);				
+					pW = pX.style.width; 
+					pH = pX.style.height;
+					pL  = pX.style.left; 
+					pT  = pX.style.top;	
+				}	
+				document.getElementById("container").style.fontSize = document.getElementById("container").style.lineHeight = document.getElementById("pX").style.height;
+				for (n = 0; n < bgs.length; n += 1) {					
+					bgs[n].style.position = "absolute";
+					bgs[n].style.width = pW;					
+					bgs[n].style.left = pL;
+					bgs[n].style.top = pT;
+					bgs[n].style.height = pH;
+				}
+			},
+			
+			resizeHandler : function () {
+				"use strict";	
+				var n, h, container = document.getElementById("container");
+				page.cWidth = window.innerWidth;
+				h = window.innerHeight;
+				page.cHeight = ((h > 299) * h) || 300;					
+				page.sizeHandler();
+				grid.scratchCopy();									
+				grid.xCellCount = Math.floor(page.cWidth / grid.stepSize);
+				grid.yCellCount = Math.floor(page.cHeight / grid.stepSize);	
+				grid.xCellCountAdd1 = grid.xCellCount + 1;
+				grid.yCellCountAdd1 = grid.yCellCount + 1;				
+				grid.lcd.width = grid.xCellCount * grid.stepSize;
+				grid.lcd.height = grid.yCellCount * grid.stepSize;				
+				grid.initialiseArray();				
+				grid.scratchPaste();				
+			},
+			
+			preloadImageReady : function () {
+				"use strict";						
+				grid.img = document.getElementById("iCell").childNodes[0];
+				grid.img.width = grid.stepSize * 3 + "px";
+				grid.img.height = grid.stepSize * 3 + "px";
+				page.resizeHandler();					
+				page.addEventHandler(window, "resize", page.resizeHandler);	
+				document.getElementById("loadShield").style.opacity = 0;	
+				setTimeout(function () {			
+					document.getElementById("loadShield").style.display = "none";	
+					page.readyToRock();
+				}, 1000);				
+			},
+			
+			preloadImagesLoaded : function () {
+				"use strict";
+				var n, negative, negatives = document.querySelectorAll(".negative"), imageFrames = document.querySelectorAll(".imageFrame"), image;				
+				document.getElementById("preloadProgressBar").style.width = "100%";	
+				if (page.i[page.i.length-1].getAttribute("onload")) {
+					page.i[page.i.length-1].removeAttribute("onload");
+				}
+				for (n = 0; n < negatives.length; n += 1) {					
+					if (negatives[n].getAttribute("data-bgImage")) {
+						document.getElementById(negatives[n].getAttribute("data-bgImage")).style.backgroundImage="url(" + negatives[n].getAttribute("data-src") + ")";
+					} else {
+						negatives[n].appendChild(page.i[n]);
+					}
+				}
+				for (n = 0; n < imageFrames.length; n += 1) {
+					negative = imageFrames[n].getAttribute("data-negative");
+					image = document.getElementById(negative).childNodes[0].cloneNode(false);					
+					imageFrames[n].appendChild(image);
+				}
+				setTimeout(function () {page.preloadImageReady();}, 1000);
+			},
+			
+			preloadImageHandler : function (index) {
+				"use strict";
+				var negatives = document.querySelectorAll(".negative"), nextIndex;
+				document.getElementById("preloadProgressBar").style.width = index / negatives.length * 100 + "%";
+				nextIndex = index + 1;
+				if (nextIndex < negatives.length) {
+					if (page.i[index].getAttribute("onload")) {
+						page.i[index].removeAttribute("onload");
+					}
+					page.i[nextIndex].src = negatives[nextIndex].getAttribute("data-src");	
+				} 
+			},	
+			
+			preloadHandler : function () {
+				"use strict";
+				var p, negatives = document.querySelectorAll(".negative");				
+				if (negatives.length) {
+					for (p = 0; p < negatives.length; p += 1) {
+						page.i[p] = new Image();
+						page.i[p].setAttribute("class", negatives[p].getAttribute("data-class"));	
+						page.i[p].setAttribute("alt", "");
+						page.i[p].setAttribute("onload", "page.preloadImageHandler(" + p + ")");
+					}
+					page.i[negatives.length-1].setAttribute("onload", "page.preloadImagesLoaded()");
+					page.i[0].src = negatives[0].getAttribute("data-src");
+				} else {					
+					page.preloadImageReady();
+				}
+			},
+			
+			pageLoaded : function () {
+				"use strict";	
+				document.getElementById("viewport").setAttribute("content", "width=device-width, initial-scale=0.5, maximum-scale=" + (1 / page.dPR) + ", minimum-scale=" + (1 / page.dPR));	
+				
+				setTimeout(function() {	//wait 100ms for the viewport to settle
+					grid.createCanvas();				    					
+					page.preloadHandler();	
+				}, 100);	
+			},
+			
+			addEventHandler : function (elem, eventType, handler) {
+				"use strict";					
+				if (elem.addEventListener) {
+					elem.addEventListener (eventType, handler, false);
+				} else if (elem.attachEvent) {
+					elem.attachEvent ("on" + eventType,handler); 
+				}
+			},
+			
+			removeEventHandler : function (elem, eventType, handler) {
+				"use strict";
+				 if (elem.removeEventListener) {
+					elem.removeEventListener (eventType, handler, false);
+				} else if (elem.detachEvent) {
+					elem.detachEvent ("on" + eventType, handler); 
+				}
+			}
+		};
+		page.addEventHandler(window, "load", page.pageLoaded);
+		</script>
+	</body>
+</html>
